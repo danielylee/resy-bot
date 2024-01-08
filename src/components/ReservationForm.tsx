@@ -46,30 +46,34 @@ const ReservationForm = ({ getReservations }: ReservationFormProps) => {
   };
 
   return (
-    <form className="max-w-[300px] mx-auto mt-4 mb-10" onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-col text-left">
-          <label>Resturant name: </label>
-          <input
-            className="border border-black py-1 px-3 rounded"
-            type="text"
-            name="resturantName"
-            value={formData.resturantName}
-            onChange={handleInputChange}
-          ></input>
-        </div>
-        <div className="flex flex-col text-left">
-          <label>When: </label>
-          <input
-            className="border border-black py-1 px-3 rounded"
-            type="datetime-local"
-            name="dateTime"
-            value={formData.dateTime}
-            onChange={handleInputChange}
-          ></input>
+    <div className="max-w-[360px] mx-auto text-left">
+      <form className="mt-4 mb-10" onSubmit={handleSubmit}>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col text-left">
+            <label>resturant name: </label>
+            <input
+              className="border border-black py-1 px-3 rounded"
+              type="text"
+              name="resturantName"
+              value={formData.resturantName}
+              onChange={handleInputChange}
+              placeholder="mcDonalds"
+            />
+          </div>
+          <div className="flex flex-col text-left">
+            <label>when: </label>
+            <input
+              className="border border-black py-1 px-3 rounded"
+              type="datetime-local"
+              name="dateTime"
+              step="600"
+              value={formData.dateTime}
+              onChange={handleInputChange}
+            />
+          </div>
         </div>
         <button
-          className={`border border-black rounded-md mt-2 p-1 ${
+          className={`border border-black rounded-md mt-3 py-1 px-3 ${
             submitting
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-blue-500 hover:text-white'
@@ -77,10 +81,10 @@ const ReservationForm = ({ getReservations }: ReservationFormProps) => {
           type="submit"
           disabled={submitting}
         >
-          Submit
+          reserve
         </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 

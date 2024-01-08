@@ -1,32 +1,32 @@
-import { useEffect, useState } from 'react';
-import './styles/App.css';
-import ReservationForm from './components/ReservationForm';
+import { useState } from 'react';
 import { supabase } from './lib/api';
+import ReservationList from './components/ReservationList';
+import ReservationForm from './components/ReservationForm';
+import Auth from './components/Auth';
 
-type Reservation = {
+export type Reservation = {
   id: number;
   resturantName: string;
   dateTime: string;
+  bookingStatus: 'pending' | 'confirmed' | 'rejected' | 'cancelled';
 };
 
 function App() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getReservations();
-  }, []);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const getReservations = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('reservations').select('*');
-      if (error) {
-        throw error;
+      const res = await supabase.from('reservations').select('*');
+      console.log(res);
+      if (res.error) {
+        throw res.error;
       }
-      setReservations(data as Reservation[]);
+      setReservations(res.data as Reservation[]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setReservations([]);
     } finally {
       setLoading(false);
@@ -52,55 +52,23 @@ function App() {
       console.error('Error removing reservation: ', error);
     }
   };
-
-  const formatDateTime = (dateTime: string) => {
-    const date = new Date(dateTime);
-    return new Intl.DateTimeFormat('default', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
   return (
-    <>
-      <ReservationForm getReservations={getReservations} />
-      <div>
-        <h3 className="mb-5">Reservations: </h3>
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <table className="table-auto m-auto text-left">
-            <thead>
-              <tr>
-                <th className="min-w-[150px]">Name</th>
-                <th className="min-w-[150px]">When</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reservations.map(({ resturantName, dateTime, id }) => (
-                <tr key={id} className="even:bg-gray-200">
-                  <td className="min-w-[150px] py-2">{resturantName}</td>
-                  <td className="min-w-[150px] py-2">
-                    {formatDateTime(dateTime)}
-                  </td>
-                  <td className="min-w-[80px] flex justify-center py-2">
-                    <button
-                      className="text-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-200 transition-all"
-                      onClick={() => removeReservation(id)}
-                    >
-                      ❌
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-    </>
+    <div className="max-w-[760px] m-auto p-8 border border-black text-center">
+      <h1>resy bot</h1>
+      {!isLoggedIn ? (
+        <Auth onLogin={() => setIsLoggedIn(true)} />
+      ) : (
+        <>
+          <ReservationForm getReservations={getReservations} />
+          <ReservationList
+            loading={loading}
+            reservations={reservations}
+            handleRemove={removeReservation}
+            getReservations={getReservations}
+          />
+        </>
+      )}
+    </div>
   );
 }
 
